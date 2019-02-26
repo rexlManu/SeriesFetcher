@@ -1,0 +1,27 @@
+{
+  "name": "seriesfetcher",
+  "version": "1.0.0",
+  "description": "get series from websites",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "keywords": [
+    "series"
+  ],
+  "author": "rexlManu",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.5.3",
+    "config.json": "0.0.4",
+    "dotenv": "^6.2.0",
+    "express": "^4.16.4",
+    "fast-html-parser": "^1.0.1",
+    "htmlparser2": "^3.10.1",
+    "node-html-parser": "^1.1.12",
+    "parse-json": "^4.0.0",
+    "parse-key-value": "^1.0.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}

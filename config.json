@@ -1,0 +1,9 @@
+{
+  "websites": [
+    {
+      "name": "anime4you",
+      "website": "anime4you.one",
+      "module": "websites/anime4you"
+    }
+  ]
+}
