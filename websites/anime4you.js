@@ -75,6 +75,7 @@ module.exports = {
                             .replace(/data-src/g, 'datasrc')
                         );
                         switch (hosterList.datahoster) {
+                            case 'Rapidvideo':
                             case 'Streamango':
                             case 'Openload':
                                 promises.push(getVideoByHash(hosterList.datasrc).then(url => {
