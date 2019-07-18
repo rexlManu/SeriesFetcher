@@ -1,6 +1,10 @@
 const express = require('express');
 const config = require('config.json')('./config.json');
 const request = require('request-promise');
+const HTMLParser = require('fast-html-parser');
+const urls = require('./config').urls;
+
+
 require('dotenv').config();
 
 
@@ -34,11 +38,32 @@ const endpoints = {
                 return;
             }
             require('./' + website.module).searchForTitle(title).then(value => {
-                res.json({
-                    website: req.query.website,
-                    search: title,
-                    titles: JSON.parse(value)
-                })
+
+                var titles = [];
+                var promises = [];
+                JSON.parse(value).forEach((title) => {
+                    promises.push(request({
+                            method: "GET",
+                            url: urls.anime4you.episode.replace('%aid%', title.value)
+                        }).then((response) => {
+                            var parse = HTMLParser.parse(response);
+                            var rawAttrs = parse.querySelector('.dark-bg').childNodes[1].childNodes[1].firstChild.rawAttrs;
+                            var imageUrl = rawAttrs.substring(0, rawAttrs.indexOf(' alt')).replace('src="', '').replace('"', '');
+                            title.image = urls.anime4you.imageUrl + imageUrl;
+                            title.year = parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText;
+                            title.state = parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText;
+                            titles.push(title)
+                        }).catch(err => console.log(err)));
+                });
+                Promise.all(promises).then(value1 => {
+                    res.json({
+                        website: req.query.website,
+                        search: title,
+                        titles: titles
+                    })
+                });
+
+
             }, reason => {
                 res.json({
                     error: reason
