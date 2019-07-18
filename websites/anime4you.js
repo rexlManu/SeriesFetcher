@@ -78,6 +78,9 @@ module.exports = {
                             case 'Rapidvideo':
                             case 'Streamango':
                             case 'Openload':
+                            case 'Vidoza':
+                            case 'Verystream':
+                            case 'Vidlox':
                                 promises.push(getVideoByHash(hosterList.datasrc).then(url => {
                                     hoster[hosterList.datahoster] = url.replace('\t', '');
                                 }).catch(reason => {
