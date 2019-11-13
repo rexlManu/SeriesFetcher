@@ -43,17 +43,26 @@ const endpoints = {
                 var promises = [];
                 JSON.parse(value).forEach((title) => {
                     promises.push(request({
-                            method: "GET",
-                            url: urls.anime4you.episode.replace('%aid%', title.value)
-                        }).then((response) => {
+                        method: "GET",
+                        url: urls.anime4you.episode.replace('%aid%', title.value)
+                    }).then((response) => {
+
+                        try {
+
                             var parse = HTMLParser.parse(response);
                             var rawAttrs = parse.querySelector('.dark-bg').childNodes[1].childNodes[1].firstChild.rawAttrs;
                             var imageUrl = rawAttrs.substring(0, rawAttrs.indexOf(' alt')).replace('src="', '').replace('"', '');
                             title.image = urls.anime4you.imageUrl + imageUrl;
-                            title.year = parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText;
-                            title.state = parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText;
-                            titles.push(title)
-                        }).catch(err => console.log(err)));
+
+                            if (parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText)
+                                title.year = parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText;
+                            if (parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText)
+                                title.state = parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText;
+                        } catch (e) {
+
+                        }
+                        titles.push(title)
+                    }).catch(err => console.log(err)));
                 });
                 Promise.all(promises).then(value1 => {
                     res.json({
@@ -69,6 +78,65 @@ const endpoints = {
                     error: reason
                 })
             })
+        }
+    },
+    information: {
+        trigger: async (req, res) => {
+            const website = config.websites.filter(value => value.name === req.query.website)[0];
+            if (!website) {
+                res.json({
+                    error: "website as parameter required"
+                });
+                return;
+            }
+            const aid = req.query.aid;
+            if (!aid) {
+                res.json({
+                    error: "aid as parameter required"
+                });
+                return;
+            }
+            request({
+                method: "GET",
+                url: urls.anime4you.episode.replace('%aid%', aid)
+            }).then((response) => {
+
+                try {
+                    var title = {};
+                    var parse = HTMLParser.parse(response);
+                    var rawAttrs = parse.querySelector('.dark-bg').childNodes[1].childNodes[1].firstChild.rawAttrs;
+                    var imageUrl = rawAttrs.substring(0, rawAttrs.indexOf(' alt')).replace('src="', '').replace('"', '');
+                    title.image = urls.anime4you.imageUrl + imageUrl;
+
+                    if (parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText)
+                        title.year = parse.querySelectorAll('.release2')[1].childNodes[1].firstChild.rawText;
+                    if (parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText)
+                        title.state = parse.querySelectorAll('.stats2')[1].childNodes[1].firstChild.rawText;
+
+                    title.name = parse.querySelector('.titel').childNodes[1].childNodes[0].rawText;
+
+                    switch (parse.querySelector('.titel').childNodes[1].childNodes[1].childNodes[0].childNodes[0].rawText) {
+                        case "GerSub&nbsp;":
+                            title.type = 'GERSUB';
+                            break;
+                        case "GerDub&nbsp;":
+                            title.type = 'GERDUB';
+                            break;
+                        default:
+                            title.type = 'UNKNOWN';
+                            break;
+                    }
+
+                    title.description = parse.querySelector('#beschreibung').childNodes[2].childNodes[0].rawText;
+                    title.length = parse.querySelectorAll('.laenge2')[1].childNodes[1].childNodes[0].rawText;
+                    title.episodes = parse.querySelectorAll('.folgen2')[0].childNodes[1].childNodes[6].childNodes[5].childNodes[1].firstChild.rawText;
+                    title.aid = aid;
+
+                    res.json(title);
+                } catch (e) {
+                    res.json({error: e});
+                }
+            }).catch(err => console.log(err));
         }
     },
     episodes: {

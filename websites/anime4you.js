@@ -1,4 +1,5 @@
 const request = require('request');
+const syncRequest = require('sync-request');
 const HTMLParser = require('fast-html-parser');
 const parse = require('parse-key-value');
 const config = require('../config');
@@ -88,6 +89,14 @@ module.exports = {
                                 }));
                                 break;
                             case 'Vivo':
+
+                                //TRY
+                                /*var res = syncRequest('GET', hosterList.datasrc, {
+                                    headers: {
+                                        'user-agent': 'example-user-agent',
+                                        'Referer': hosterList.datasrc
+                                    },
+                                });*/
                                 hoster[hosterList.datahoster] = hosterList.datasrc;
                                 break;
                         }

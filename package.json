@@ -19,6 +19,7 @@
     "fast-html-parser": "^1.0.1",
     "parse-key-value": "^1.0.0",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "sync-request": "^6.1.0"
   }
 }
